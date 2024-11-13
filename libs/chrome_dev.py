@@ -261,6 +261,22 @@ class ChromDevWrapper():
         except Exception:
             pass
         return values
+    
+    def set_attrib(self, selector: str, attrib: str, value: str) -> str:
+        """ Get specific attribute from visible element
+
+        Args:
+            selector(str): css selector
+            attrib(str): attribute to get
+            value(str): value to set
+            
+        Returns:
+            str: attribute value
+        """
+        
+        script = f'document.querySelector("{selector}")'
+        script += f'.setAttribute("{attrib}", "{value}");'
+        self.chrome.Runtime.evaluate(expression=script)
         
     def quit(self, kill_chrome: bool = True):
         """ Close chrome and conexion
