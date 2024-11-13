@@ -1,6 +1,5 @@
-from libs.chrome_dev import ChromDevWrapper
 import os
-from time import sleep
+from libs.chrome_dev import ChromDevWrapper
 
 
 class Scraper(ChromDevWrapper):
@@ -32,14 +31,14 @@ class Scraper(ChromDevWrapper):
         original_mp4_files = len(mp4_files)
         original_files = mp4_files
 
-        print("Waiting for download to finish...")
+        print("\t\tWaiting for download to finish...")
         while len(mp4_files) <= original_mp4_files:
             mp4_files = [f for f in os.listdir(dowload_path) if f.endswith('.mp4')]
-        print("Download finished")
+        print("\t\tDownload finished")
 
         new_file = list(set(original_files) ^ set(mp4_files))[0]
         new_file_path = dowload_path + "\\" + new_file
-        print(f"New video: {new_file_path}")
+        print(f"\t\tNew video: {new_file_path}")
 
         return new_file_path
 
@@ -52,29 +51,27 @@ class Scraper(ChromDevWrapper):
 
         selectors = {
             "upload_btn": "#upload-button",
-            "input_video": "input[type='file']"
+            "input_video": "input[type='file']",
+            "preview_play_btn": '[icon="av:play-arrow"]',
+            "video_title": "#textbox",
         }
 
         # Open upload page
         self.set_page(self.youtube_page)
         self.click(selectors["upload_btn"])
         
-        # Upload video file
-        sleep(2)
-        # elems = self.count_elems(selectors["input_video"])
-        # video_value = self.get_attrib(selectors["input_video"], "value")
-        # video_value_2 = self.get_prop(selectors["input_video"], "value")
-        # self.send_data(selectors["input_video"], video_path)
-        # elems = self.count_elems(selectors["input_video"])
-        # video_value = self.get_attrib(selectors["input_video"], "value")
-        # video_value_2 = self.get_prop(selectors["input_video"], "value")
-        # self.send_data_js(selectors["input_video"], video_path)
-        # elems = self.count_elems(selectors["input_video"])
-        # video_value = self.get_attrib(selectors["input_video"], "value")
-        # video_value_2 = self.get_prop(selectors["input_video"], "value")
-        self.set_attrib(selectors["input_video"], "value", video_path)
-        elems = self.count_elems(selectors["input_video"])
-        video_value = self.get_attrib(selectors["input_video"], "value")
-        video_value_2 = self.get_prop(selectors["input_video"], "value")
-        input("continue?")
+        # Upload video
+        print("\t\tUploading file...")
+        self.wait_load(selectors["input_video"])
+        self.send_input_file(selectors["input_video"], video_path)
+        
+        # Wait until video is processed (until preview play button is available)
+        print("\t\tWaiting youtube to process video...")
+        self.wait_load(selectors["preview_play_btn"], max_wait=300)
+        
+        # Write video data
+        print("\t\tWriting video data...")
+        self.set_innerhtml(selectors["video_title"], "Sample Video 1")
+        
+        input("Press enter to continue...")
         

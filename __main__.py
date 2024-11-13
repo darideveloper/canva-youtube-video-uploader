@@ -22,16 +22,18 @@ def main():
     
     for row in range(1, len(data)):
         
-        # Download video from canva
         canva_link = data[row][0]
-        print(f"Downloading video from {canva_link} ...")
+        print(f"Video: {canva_link}")
+        
+        # Download video from canva
+        print("\tDownloading video...")
         canva_video_path = scraper.download_canva_video(
             canva_link,
             DOWNLOAD_FOLDER
         )
         
         # Upload video to youtube
-        print("Uploading video to youtube...")
+        print("\tUploading video to youtube...")
         scraper.upload_youtube_video(canva_video_path)
 
 

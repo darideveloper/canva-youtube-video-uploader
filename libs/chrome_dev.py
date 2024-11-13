@@ -278,6 +278,23 @@ class ChromDevWrapper():
         script += f'.setAttribute("{attrib}", "{value}");'
         self.chrome.Runtime.evaluate(expression=script)
         
+    def send_input_file(self, selector: str, file_path: str):
+        """ Send file to specific input
+
+        Args:
+            selector(str): css selector
+            file_path(str): file path
+        """
+        
+        input_file_node = self.chrome.DOM.querySelector(
+            nodeId=self.chrome.DOM.getDocument()[0]["result"]["root"]["nodeId"],
+            selector=selector
+        )[0]["result"]["nodeId"]
+        self.chrome.DOM.setFileInputFiles(
+            nodeId=input_file_node,
+            files=[file_path]
+        )
+        
     def quit(self, kill_chrome: bool = True):
         """ Close chrome and conexion
 
@@ -351,5 +368,32 @@ class ChromDevWrapper():
         """
         
         script = "window.scrollTo(0, document.body.scrollHeight);"
+        self.chrome.Runtime.evaluate(expression=script)
+        
+    def wait_load(self, selector: str, max_wait: int = 60):
+        """ Wait until element is visible
+
+        Args:
+            selector (str): css selector of the element
+        """
+        
+        # Try to find element many times
+        for _ in range(max_wait):
+            elem_count = self.count_elems(selector)
+            if elem_count != 0:
+                break
+            
+            # Wait 1 second each try
+            sleep(1)
+            
+    def set_innerhtml(self, selector: str, value: str):
+        """ Write html in element
+        
+        Args:
+            selector(str): css selector
+            value(str): html to write
+        """
+        
+        script = f'document.querySelector("{selector}").innerHTML = "{value}";'
         self.chrome.Runtime.evaluate(expression=script)
         
