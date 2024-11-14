@@ -2,6 +2,7 @@ import os
 from libs.chrome_dev import ChromDevWrapper
 from time import sleep
 
+
 class Scraper(ChromDevWrapper):
 
     def __init__(self):
@@ -10,7 +11,7 @@ class Scraper(ChromDevWrapper):
         super().__init__(start_killing=True)
         self.youtube_page = 'https://studio.youtube.com/'
         self.canva_page = 'https://www.canva.com/projects/'
-    
+
     def download_canva_video(self, video_name: str, dowload_path) -> str:
         """ Download video from canva
 
@@ -28,7 +29,7 @@ class Scraper(ChromDevWrapper):
         sleep(5)
 
         self.set_page(video_name)
-        
+
         mp4_files = [f for f in os.listdir(dowload_path) if f.endswith('.mp4')]
 
         self.wait_load(selectors["downoad_btn"])
@@ -39,7 +40,8 @@ class Scraper(ChromDevWrapper):
 
         print("\t\tWaiting for download to finish...")
         while len(mp4_files) <= original_mp4_files:
-            mp4_files = [f for f in os.listdir(dowload_path) if f.endswith('.mp4')]
+            mp4_files = [f for f in os.listdir(
+                dowload_path) if f.endswith('.mp4')]
         print("\t\tDownload finished")
 
         new_file = list(set(original_files) ^ set(mp4_files))[0]
@@ -69,31 +71,31 @@ class Scraper(ChromDevWrapper):
         # Open upload page
         self.set_page(self.youtube_page)
         self.click(selectors["upload_btn"])
-        
+
         # Upload video
         print("\t\tUploading file...")
         self.wait_load(selectors["input_video"])
         self.send_input_file(selectors["input_video"], video_path)
-        
+
         # Wait until video is processed (until preview play button is available)
         print("\t\tWaiting youtube to process video...")
         self.wait_load(selectors["preview_play_btn"], max_wait=300)
-        
+
         # Write video data
         print("\t\tDetails...")
         self.click(selectors["kids_radio"])
-        
+
         sleep(2)
-        self.click(selectors["next_btn"])    
+        self.click(selectors["next_btn"])
 
         print("\t\tVideo elements...")
         sleep(2)
-        self.click(selectors["next_btn"])    
+        self.click(selectors["next_btn"])
 
         print("\t\tVerification...")
         sleep(2)
         self.click(selectors["next_btn"])
-        
+
         print("\t\tVisibility...")
         sleep(2)
         self.click(selectors["public_radio"])
@@ -102,4 +104,37 @@ class Scraper(ChromDevWrapper):
         self.click(selectors["save_btn"])
         print("\t\t\tVideo uploaded...")
         input("Press enter to continue...")
+        
+    def get_canva_video_links(self) -> list:
+        """ Get all links from canva videos
+        
+        Returns:
+            list: list of links
+        """
+        
+        selectors = {
+            "videos_tab": '[role="tablist"] button:last-child',
+            "video_wrapper": "div:nth-child(2) > div.SwlpcA > div",
+            "video": "div.e_NdpQ.gwb2Ug._7YslCg",
+        }
+        
+        # Open project page and click on videos tab
+        self.set_page(self.canva_page)
+        self.click(selectors["videos_tab"])
+        
+        # Load videos
+        print("\tScrolling to load all videos...")
+        last_videos_num = 0
+        while True:
+            current_videos_num = self.count_elems(selectors["video_wrapper"])
+            if current_videos_num == last_videos_num:
+                break
+            last_videos_num = current_videos_num
+            self.go_down()
+            sleep(5)
+            
+        # Get videos
+        print(f"\t{current_videos_num} videos found")
+        print("\tGetting videos links...")
+        
         
