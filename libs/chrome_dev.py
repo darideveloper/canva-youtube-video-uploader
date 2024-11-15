@@ -251,8 +251,7 @@ class ChromDevWrapper():
 
         script = 'values = [];'
         script += f"""document.querySelectorAll(`{selector}`)"""
-        script += f'.forEach(elem => values.push(elem.getAttribute("{
-            attrib}")));'
+        script += f'.forEach(elem => values.push(elem.getAttribute(`{attrib}`)));'
         script += 'values;'
         response = self.chrome.Runtime.evaluate(
             expression=script, returnByValue=True)
