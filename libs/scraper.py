@@ -116,20 +116,17 @@ class Scraper(ChromDevWrapper):
             "videos_tab": "div[role='tablist'] button:last-child",
             "video_wrapper": "div:nth-child(2) > div.SwlpcA > div",
             "video": "div.e_NdpQ.gwb2Ug._7YslCg",
+            "close_video": '[data-focus-guard="true"] + div + div > button'
         }
         
         # Open project page and click on videos tab
         self.set_page(self.canva_page)
-        # self.refresh_chrome_dev()
-        video_tabs = self.count_elems(selectors["videos_tab"])
         self.click(selectors["videos_tab"])
         
         # Load videos
         print("\tScrolling to load all videos...")
         last_videos_num = 0
-        current_videos_num = 10
         while True:
-            # Debug
             current_videos_num = self.count_elems(selectors["video_wrapper"])
             if current_videos_num == last_videos_num:
                 break
@@ -143,13 +140,22 @@ class Scraper(ChromDevWrapper):
         
         links = []
         for index in range(1, current_videos_num + 1):
-            print(f"\tVideo {index}/{current_videos_num}")
+            
+            # Open video
+            print(f"\t\tVideo {index}/{current_videos_num}")
             video_selector = f"{selectors['video_wrapper']}:nth-child({index})"
             video_selector += f" {selectors['video']}"
             self.click(video_selector)
+            
+            # Save link
             sleep(2)
             link = self.get_current_url()
             links.append(link)
-            print()
+            
+            # Close video
+            self.click(selectors["close_video"])
+            sleep(2)
+            
+        return links
         
         
