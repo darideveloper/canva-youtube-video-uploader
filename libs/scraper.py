@@ -105,7 +105,7 @@ class Scraper(ChromDevWrapper):
         print("\t\t\tVideo uploaded...")
         input("Press enter to continue...")
         
-    def get_canva_video_links(self) -> list:
+    def get_canva_videos_links(self) -> list:
         """ Get all links from canva videos
         
         Returns:
@@ -113,19 +113,23 @@ class Scraper(ChromDevWrapper):
         """
         
         selectors = {
-            "videos_tab": '[role="tablist"] button:last-child',
+            "videos_tab": "div[role='tablist'] button:last-child",
             "video_wrapper": "div:nth-child(2) > div.SwlpcA > div",
             "video": "div.e_NdpQ.gwb2Ug._7YslCg",
         }
         
         # Open project page and click on videos tab
         self.set_page(self.canva_page)
+        # self.refresh_chrome_dev()
+        video_tabs = self.count_elems(selectors["videos_tab"])
         self.click(selectors["videos_tab"])
         
         # Load videos
         print("\tScrolling to load all videos...")
         last_videos_num = 0
+        current_videos_num = 10
         while True:
+            # Debug
             current_videos_num = self.count_elems(selectors["video_wrapper"])
             if current_videos_num == last_videos_num:
                 break
@@ -136,5 +140,16 @@ class Scraper(ChromDevWrapper):
         # Get videos
         print(f"\t{current_videos_num} videos found")
         print("\tGetting videos links...")
+        
+        links = []
+        for index in range(1, current_videos_num + 1):
+            print(f"\tVideo {index}/{current_videos_num}")
+            video_selector = f"{selectors['video_wrapper']}:nth-child({index})"
+            video_selector += f" {selectors['video']}"
+            self.click(video_selector)
+            sleep(2)
+            link = self.get_current_url()
+            links.append(link)
+            print()
         
         
