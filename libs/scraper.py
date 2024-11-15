@@ -30,6 +30,8 @@ class Scraper(ChromDevWrapper):
 
         self.set_page(video_name)
 
+        print("\t\tsearching canva...")
+        
         mp4_files = [f for f in os.listdir(dowload_path) if f.endswith('.mp4')]
 
         self.wait_load(selectors["downoad_btn"])
@@ -58,7 +60,8 @@ class Scraper(ChromDevWrapper):
         """
 
         selectors = {
-            "upload_btn": "#upload-button",
+            "create_btn": "#create-icon",
+            "upload_btn": "#text-item-0",
             "input_video": "input[type='file']",
             "preview_play_btn": '[icon="av:play-arrow"]',
             "video_title": "#textbox",
@@ -68,7 +71,12 @@ class Scraper(ChromDevWrapper):
             "save_btn": "#done-button"
         }
 
-        # Open upload page
+         # Open upload page
+        self.set_page(self.youtube_page)
+        self.click(selectors["create_btn"])
+
+        sleep(5)
+
         self.set_page(self.youtube_page)
         self.click(selectors["upload_btn"])
 
